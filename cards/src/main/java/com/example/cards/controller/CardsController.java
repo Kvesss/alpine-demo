@@ -1,5 +1,7 @@
 package com.example.cards.controller;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.cards.constants.CardsConstants;
+import com.example.cards.dto.CardsContactInfoDto;
 import com.example.cards.dto.CardsDto;
 import com.example.cards.dto.ErrorResponseDto;
 import com.example.cards.dto.ResponseDto;
@@ -26,18 +29,29 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
 
 @Tag(name = "CRUD REST APIs for Cards in the Bank",
      description = "CRUD REST APIs in the Bank to CREATE, UPDATE, FETCH AND DELETE card details")
 @RestController
 @RequestMapping(path = "/api/v1/cards",
                 produces = { MediaType.APPLICATION_JSON_VALUE })
-@AllArgsConstructor
 @Validated
 public class CardsController {
 
-    private CardsService cardsService;
+    private final CardsService cardsService;
+
+    @Value("${build.version}")
+    private String buildVersion;
+
+    private final Environment environment;
+
+    private final CardsContactInfoDto cardsContactInfoDto;
+
+    public CardsController(final CardsService cardsService, final Environment environment, final CardsContactInfoDto cardsContactInfoDto) {
+        this.cardsService = cardsService;
+        this.environment = environment;
+        this.cardsContactInfoDto = cardsContactInfoDto;
+    }
 
     @Operation(summary = "Create Card REST API",
                description = "REST API to create new Card inside the Bank")
@@ -110,6 +124,34 @@ public class CardsController {
             return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                                  .body(new ResponseDto(CardsConstants.STATUS_417, CardsConstants.MESSAGE_417_DELETE));
         }
+    }
+
+    @Operation(summary = "Get Build Information",
+               description = "GET API to Get Build Information")
+    @ApiResponse(responseCode = "200",
+                 description = "HTTP Status OK")
+    @GetMapping("/build-info")
+    public ResponseEntity<String> getBuildInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(this.buildVersion);
+    }
+
+    @Operation(summary = "Get Java Version",
+               description = "GET API to Get Java Version")
+    @ApiResponse(responseCode = "200",
+                 description = "HTTP Status OK")
+    @GetMapping("/java-version")
+    public ResponseEntity<String> getJavaVersion() {
+        final String javaVersion = this.environment.getProperty("JAVA_HOME");
+        return ResponseEntity.status(HttpStatus.OK).body(javaVersion);
+    }
+
+    @Operation(summary = "Get Contact Info",
+               description = "GET API to Get Contact Info")
+    @ApiResponse(responseCode = "200",
+                 description = "HTTP Status OK")
+    @GetMapping("/contact-info")
+    public ResponseEntity<CardsContactInfoDto> getContactInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(this.cardsContactInfoDto);
     }
 
 }

@@ -1,0 +1,16 @@
+spring:
+  config:
+    activate:
+      on-profile: "qa"
+
+build:
+  version: "v2"
+
+accounts:
+  message: "Message about Accounts QA"
+  contactDetails:
+    name: "Enrico Fermi"
+    email: "efermi@gmail.com"
+  onCallSupport:
+    - (123) 456-7890
+    - (385) 987-4332

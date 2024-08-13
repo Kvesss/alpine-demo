@@ -1,5 +1,7 @@
 package com.example.accounts.controller;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.accounts.constants.AccountsConstants;
+import com.example.accounts.dto.AccountsContactInfoDto;
 import com.example.accounts.dto.CustomerDto;
 import com.example.accounts.dto.ErrorResponseDto;
 import com.example.accounts.dto.ResponseDto;
@@ -37,8 +40,17 @@ public class AccountsController {
 
     private final AccountsService accountsService;
 
-    public AccountsController(final AccountsService accountsService) {
+    @Value("${build.version}")
+    private String buildVersion;
+
+    private final Environment environment;
+
+    private final AccountsContactInfoDto accountsContactInfoDto;
+
+    public AccountsController(final AccountsService accountsService, final Environment environment, final AccountsContactInfoDto accountsContactInfoDto) {
         this.accountsService = accountsService;
+        this.environment = environment;
+        this.accountsContactInfoDto = accountsContactInfoDto;
     }
 
     @Operation(summary = "Create Account",
@@ -107,6 +119,34 @@ public class AccountsController {
         }
         return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED)
                              .body(new ResponseDto(AccountsConstants.STATUS_417, AccountsConstants.MESSAGE_417_DELETE));
+    }
+
+    @Operation(summary = "Get Build Information",
+               description = "GET API to Get Build Information")
+    @ApiResponse(responseCode = "200",
+                 description = "HTTP Status OK")
+    @GetMapping("/build-info")
+    public ResponseEntity<String> getBuildInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(this.buildVersion);
+    }
+
+    @Operation(summary = "Get Java Version",
+               description = "GET API to Get Java Version")
+    @ApiResponse(responseCode = "200",
+                 description = "HTTP Status OK")
+    @GetMapping("/java-version")
+    public ResponseEntity<String> getJavaVersion() {
+        final String javaVersion = this.environment.getProperty("JAVA_HOME");
+        return ResponseEntity.status(HttpStatus.OK).body(javaVersion);
+    }
+
+    @Operation(summary = "Get Contact Info",
+               description = "GET API to Get Contact Info")
+    @ApiResponse(responseCode = "200",
+                 description = "HTTP Status OK")
+    @GetMapping("/contact-info")
+    public ResponseEntity<AccountsContactInfoDto> getContactInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(this.accountsContactInfoDto);
     }
 
 }

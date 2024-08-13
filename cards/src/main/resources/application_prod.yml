@@ -1,0 +1,16 @@
+spring:
+  config:
+    activate:
+      on-profile: "prod"
+
+build:
+  version: "v1"
+
+cards:
+  message: "Message about Cards PROD"
+  contactDetails:
+    name: "Edward Teller"
+    email: "eteller@gmail.com"
+  onCallSupport:
+    - (123) 456-7890
+    - (385) 987-4332

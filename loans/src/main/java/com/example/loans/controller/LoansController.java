@@ -1,5 +1,7 @@
 package com.example.loans.controller;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.loans.constants.LoansConstants;
 import com.example.loans.dto.ErrorResponseDto;
+import com.example.loans.dto.LoansContactInfoDto;
 import com.example.loans.dto.LoansDto;
 import com.example.loans.dto.ResponseDto;
 import com.example.loans.service.LoansService;
@@ -26,7 +29,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
 
 @Tag(
   name = "CRUD REST APIs for Loans in the Bank",
@@ -34,11 +36,23 @@ import lombok.AllArgsConstructor;
 )
 @RestController
 @RequestMapping(path = "/api/v1/loans", produces = { MediaType.APPLICATION_JSON_VALUE})
-@AllArgsConstructor
 @Validated
 public class LoansController {
 
-    private LoansService loansService;
+    private final LoansService loansService;
+
+    @Value("${build.version}")
+    private String buildVersion;
+
+    private final Environment environment;
+
+    private final LoansContactInfoDto cardsContactInfoDto;
+
+    public LoansController(final Environment environment, final LoansContactInfoDto cardsContactInfoDto, final LoansService loansService) {
+        this.environment = environment;
+        this.cardsContactInfoDto = cardsContactInfoDto;
+        this.loansService = loansService;
+    }
 
     @Operation(
       summary = "Create Loan REST API",
@@ -151,6 +165,34 @@ public class LoansController {
                      .status(HttpStatus.EXPECTATION_FAILED)
                      .body(new ResponseDto(LoansConstants.STATUS_417, LoansConstants.MESSAGE_417_DELETE));
         }
+    }
+
+    @Operation(summary = "Get Build Information",
+               description = "GET API to Get Build Information")
+    @ApiResponse(responseCode = "200",
+                 description = "HTTP Status OK")
+    @GetMapping("/build-info")
+    public ResponseEntity<String> getBuildInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(this.buildVersion);
+    }
+
+    @Operation(summary = "Get Java Version",
+               description = "GET API to Get Java Version")
+    @ApiResponse(responseCode = "200",
+                 description = "HTTP Status OK")
+    @GetMapping("/java-version")
+    public ResponseEntity<String> getJavaVersion() {
+        final String javaVersion = this.environment.getProperty("JAVA_HOME");
+        return ResponseEntity.status(HttpStatus.OK).body(javaVersion);
+    }
+
+    @Operation(summary = "Get Contact Info",
+               description = "GET API to Get Contact Info")
+    @ApiResponse(responseCode = "200",
+                 description = "HTTP Status OK")
+    @GetMapping("/contact-info")
+    public ResponseEntity<LoansContactInfoDto> getContactInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(this.cardsContactInfoDto);
     }
 
 }
