@@ -27,7 +27,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         final Map<String, String> validationErrors = new HashMap<>();
         final List<ObjectError> validationErrorList = ex.getBindingResult().getAllErrors();
 
-        validationErrorList.forEach((error) -> {
+        validationErrorList.forEach(error -> {
             final String fieldName = ((FieldError) error).getField();
             final String validationMsg = error.getDefaultMessage();
             validationErrors.put(fieldName, validationMsg);

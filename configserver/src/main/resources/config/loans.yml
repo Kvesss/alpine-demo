@@ -1,0 +1,11 @@
+build:
+  version: "v3"
+
+loans:
+  message: "Message about Loans"
+  contactDetails:
+    name: "John Doe"
+    email: "jdoe@gmail.com"
+  onCallSupport:
+    - (123) 456-7890
+    - (385) 987-4332

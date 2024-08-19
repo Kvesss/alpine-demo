@@ -3,6 +3,8 @@ server:
 spring:
   application:
     name: cards
+  profiles:
+    active: "prod"
   datasource:
     url: jdbc:h2:mem:testdb
     driverClassName: org.h2.Driver
@@ -17,18 +19,4 @@ spring:
       ddl-auto: update
     show-sql: true
   config:
-    import:
-      - "application_qa.yml"
-      - "application_prod.yml"
-
-build:
-  version: "v3"
-
-cards:
-  message: "Message about Cards"
-  contactDetails:
-    name: "John Doe"
-    email: "jdoe@gmail.com"
-  onCallSupport:
-    - (123) 456-7890
-    - (385) 987-4332
+    import: "optional:configserver:http://localhost:8071/"

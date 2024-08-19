@@ -1,0 +1,11 @@
+build:
+  version: "v1"
+
+loans:
+  message: "Message about Loans PROD"
+  contactDetails:
+    name: "Edward Teller"
+    email: "eteller@gmail.com"
+  onCallSupport:
+    - (123) 456-7890
+    - (385) 987-4332
