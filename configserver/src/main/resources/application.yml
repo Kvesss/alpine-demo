@@ -2,12 +2,18 @@ spring:
   application:
     name: configserver
   profiles:
-    active: native
+    active: git
   cloud:
     config:
       server:
-        native:
-          search-locations: "classpath:/config"
+        git:
+          uri: "https://github.com/kvesss/alpine-config.git"
+          default-label: develop
+          timeout: 5
+          clone-on-start: true
+          force-pull: true
+encrypt:
+  key: "B5888A11C71A16B4C2A85A379C5C2"
 
 server:
   port: 8071

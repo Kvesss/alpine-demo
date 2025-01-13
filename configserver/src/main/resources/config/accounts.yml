@@ -4,7 +4,7 @@ build:
 accounts:
   message: "Message about Accounts"
   contactDetails:
-    name: "John Doe"
+    name: "{cipher}471c305bda1a9ace8c0769ad7fb563cfb6d1ac4c7a58f07fea21a4c283d750b4"
     email: "jdoe@gmail.com"
   onCallSupport:
     - (123) 456-7890
