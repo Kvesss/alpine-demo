@@ -1,0 +1,81 @@
+services:
+
+  rabbit:
+    image: rabbitmq:3.13-management
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
+  configserver:
+    image: "dkvesic/configserver:v1"
+    container_name: "configserver_ms"
+    ports:
+      - "8071:8071"
+    extends:
+      file: common-config.yml
+      service: microservice-base-config
+    healthcheck:
+      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      rabbit:
+        condition: service_healthy
+
+  accounts:
+    image: "dkvesic/accounts:v1"
+    container_name: "accounts_ms"
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_APPLICATION_NAME: "accounts"
+    depends_on:
+      configserver:
+        condition: service_healthy
+
+  loans:
+    image: "dkvesic/loans:v1"
+    container_name: "loans_ms"
+    ports:
+      - "8090:8090"
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
+    environment:
+      SPRING_APPLICATION_NAME: "loans"
+    depends_on:
+      configserver:
+        condition: service_healthy
+
+  cards:
+    image: "dkvesic/cards:v1"
+    container_name: "cards_ms"
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
+    ports:
+      - "9000:9000"
+    environment:
+      SPRING_APPLICATION_NAME: "cards"
+    depends_on:
+      configserver:
+        condition: service_healthy
+
+networks:
+  microservices:
+    driver: "bridge"
