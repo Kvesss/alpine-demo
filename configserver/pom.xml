@@ -76,7 +76,7 @@
 				<version>3.4.3</version>
 				<configuration>
 					<to>
-						<image>dkvesic/${project.artifactId}:v1</image>
+						<image>dkvesic/${project.artifactId}:v2</image>
 					</to>
 				</configuration>
 			</plugin>
