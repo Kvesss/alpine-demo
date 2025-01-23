@@ -71,6 +71,9 @@ public class AccountsController {
                description = "GET API to fetch an Account")
     @ApiResponse(responseCode = "200",
                  description = "HTTP Status OK")
+    @ApiResponse(responseCode = "500",
+                 description = "HTTP Status Internal Server Error",
+                 content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @GetMapping("/fetch")
     public ResponseEntity<CustomerDto> fetchAccountDetails(@RequestParam @Pattern(regexp = "(^$|[0-9]{10})",
                                                                                   message = "Mobile number must be 10 digits") final String mobileNumber) {

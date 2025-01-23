@@ -9,10 +9,10 @@ import lombok.Data;
 
 @Data
 @Schema(
-  name = "Customer",
-  description = "Schema to hold Customer and Account info"
+  name = "Customer Details",
+  description = "Schema to hold Customer, Account, Card and Loans info"
 )
-public class CustomerDto {
+public class CustomerDetailsDto {
 
     @Schema(
       description = "Name of the customer", example = "John Doe"
@@ -34,6 +34,19 @@ public class CustomerDto {
     @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be 10 digits")
     private String mobileNumber;
 
+    @Schema(
+      description = "Accounts DTO of the customer"
+    )
     private AccountsDto accountsDto;
+
+    @Schema(
+      description = "Cards DTO of the customer"
+    )
+    private CardsDto cardsDto;
+
+    @Schema(
+      description = "Loans DTO of the customer"
+    )
+    private LoansDto loansDto;
 
 }
