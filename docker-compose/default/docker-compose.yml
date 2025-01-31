@@ -86,6 +86,24 @@ services:
       configserver:
         condition: service_healthy
 
+  gatewayserver:
+    image: "dkvesic/gatewayserver:v2"
+    container_name: "gatewayserver_ms"
+    ports:
+      - "8085:8085"
+    extends:
+      file: common-config.yml
+      service: microservice-eureka-config
+    environment:
+      SPRING_APPLICATION_NAME: "gatewayserver"
+    depends_on:
+      accounts:
+        condition: service_healthy
+      loans:
+        condition: service_healthy
+      cards:
+        condition: service_healthy
+
   accounts:
     image: "dkvesic/accounts:v2"
     container_name: "accounts_ms"
@@ -97,6 +115,12 @@ services:
     environment:
       SPRING_APPLICATION_NAME: "accounts"
       SPRING_DATASOURCE_URL: "jdbc:mysql://accountsdb:3306/accountsdb"
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     depends_on:
       configserver:
         condition: service_healthy
@@ -105,9 +129,9 @@ services:
       eurekaserver:
         condition: service_healthy
 
-  loans1:
+  loans:
     image: "dkvesic/loans:v2"
-    container_name: "loans_ms1"
+    container_name: "loans_ms"
     ports:
       - "8090:8090"
     extends:
@@ -116,25 +140,12 @@ services:
     environment:
       SPRING_APPLICATION_NAME: "loans"
       SPRING_DATASOURCE_URL: "jdbc:mysql://loansdb:3306/loansdb"
-    depends_on:
-      configserver:
-        condition: service_healthy
-      loansdb:
-        condition: service_healthy
-      eurekaserver:
-        condition: service_healthy
-
-  loans2:
-    image: "dkvesic/loans:v2"
-    container_name: "loans_ms2"
-    ports:
-      - "8091:8090"
-    extends:
-      file: common-config.yml
-      service: microservice-eureka-config
-    environment:
-      SPRING_APPLICATION_NAME: "loans"
-      SPRING_DATASOURCE_URL: "jdbc:mysql://loansdb:3306/loansdb"
+    healthcheck:
+      test: "curl --fail --silent localhost:8090/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     depends_on:
       configserver:
         condition: service_healthy
@@ -154,6 +165,12 @@ services:
     environment:
       SPRING_APPLICATION_NAME: "cards"
       SPRING_DATASOURCE_URL: "jdbc:mysql://cardsdb:3306/cardsdb"
+    healthcheck:
+      test: "curl --fail --silent localhost:9000/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     depends_on:
       configserver:
         condition: service_healthy

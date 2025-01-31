@@ -1,6 +1,7 @@
 package com.example.accounts.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.example.accounts.dto.AccountsDto;
 import com.example.accounts.dto.CustomerDetailsDto;
@@ -30,7 +31,7 @@ public class CustomerServiceImpl implements CustomerService {
     private LoansFeignClient loansFeignClient;
 
     @Override
-    public CustomerDetailsDto fetchCustomerDetails(final String mobileNumber) {
+    public CustomerDetailsDto fetchCustomerDetails(@RequestHeader("alpine-correlation-id") final String correlationId, final String mobileNumber) {
         final Customer customer = this.customerRepository.findByMobileNumber(mobileNumber)
                                                          .orElseThrow(() -> new ResourceNotFoundException("Customer", "mobileNumber", mobileNumber));
         final Accounts accounts = this.accountsRepository.findByCustomerId(customer.getCustomerId())

@@ -1,5 +1,7 @@
 package com.example.cards.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +40,8 @@ import jakarta.validation.constraints.Pattern;
                 produces = { MediaType.APPLICATION_JSON_VALUE })
 @Validated
 public class CardsController {
+
+    private static final Logger logger = LoggerFactory.getLogger(CardsController.class);
 
     private final CardsService cardsService;
 
@@ -76,8 +81,9 @@ public class CardsController {
                  description = "HTTP Status Internal Server Error",
                  content = @Content(schema = @Schema(implementation = ErrorResponseDto.class)))
     @GetMapping("/fetch")
-    public ResponseEntity<CardsDto> fetchCardDetails(@RequestParam @Pattern(regexp = "(^$|[0-9]{10})",
-                                                                            message = "Mobile number must be 10 digits") final String mobileNumber) {
+    public ResponseEntity<CardsDto> fetchCardDetails(@RequestHeader("alpine-correlation-id") final String correlationId,  @RequestParam @Pattern(regexp = "(^$|[0-9]{10})",
+                                                                                           message = "Mobile number must be 10 digits") final String mobileNumber) {
+        logger.debug("alpine correlation id: {}", correlationId);
         final CardsDto cardsDto = this.cardsService.fetchCard(mobileNumber);
         return ResponseEntity.status(HttpStatus.OK)
                              .body(cardsDto);
