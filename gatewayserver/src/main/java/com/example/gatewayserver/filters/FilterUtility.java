@@ -10,7 +10,7 @@ import java.util.Optional;
 @Component
 public class FilterUtility {
 
-    static final String CORRELATION_ID = "alpine-correlation-id";
+    public static final String CORRELATION_ID = "alpine-correlation-id";
 
     public String getCorrelationId(final HttpHeaders requestHeaders) {
         return Optional.ofNullable(requestHeaders.get(CORRELATION_ID))
