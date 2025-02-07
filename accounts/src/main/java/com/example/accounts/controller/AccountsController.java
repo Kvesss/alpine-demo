@@ -24,6 +24,7 @@ import com.example.accounts.dto.ErrorResponseDto;
 import com.example.accounts.dto.ResponseDto;
 import com.example.accounts.service.AccountsService;
 
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -149,10 +150,17 @@ public class AccountsController {
                description = "GET API to Get Java Version")
     @ApiResponse(responseCode = "200",
                  description = "HTTP Status OK")
+    @RateLimiter(name = "getJavaVersion", fallbackMethod = "getJavaVersionFallback")
     @GetMapping("/java-version")
     public ResponseEntity<String> getJavaVersion() {
-        final String javaVersion = this.environment.getProperty("JAVA_HOME");
-        return ResponseEntity.status(HttpStatus.OK).body(javaVersion);
+        return ResponseEntity.status(HttpStatus.OK)
+                             .body(this.environment.getProperty("JAVA_HOME"));
+    }
+
+    public ResponseEntity<String> getJavaVersionFallback(final Throwable throwable) {
+        logger.debug("getJavaVersionFallback invoked: {}", throwable.getMessage());
+        return ResponseEntity.status(HttpStatus.OK)
+                             .body("Java 17");
     }
 
     @Operation(summary = "Get Contact Info",

@@ -5,6 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.circuitbreaker.resilience4j.ReactiveResilience4JCircuitBreakerFactory;
 import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JConfigBuilder;
 import org.springframework.cloud.client.circuitbreaker.Customizer;
+import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
+import org.springframework.cloud.gateway.filter.ratelimit.RateLimiter;
+import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +17,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.timelimiter.TimeLimiterConfig;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import reactor.core.publisher.Mono;
 
 @SpringBootApplication
 public class GatewayserverApplication {
@@ -41,11 +45,21 @@ public class GatewayserverApplication {
 								  .route(p -> p.path("/alpine/cards/**")
 											   .filters(f -> f.rewritePath("alpine/cards/(?<segment>.*)","/${segment}")
 															  .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
-                                                              .retry(retryConfig -> retryConfig.setRetries(3)
-                                                                                               .setMethods(HttpMethod.GET)
-                                                                                               .setBackoff(Duration.ofMillis(100), Duration.ofMillis(1000), 2, true)))
+                                                              .requestRateLimiter(config -> config.setRateLimiter(this.redisRateLimiter()).setKeyResolver(this.userKeyResolver())))
 											   .uri("lb://CARDS"))
 								  .build();
+	}
+
+	private KeyResolver userKeyResolver() {
+		return exchange -> Mono.justOrEmpty(exchange
+											.getRequest()
+											.getHeaders()
+											.getFirst("user"))
+							   .defaultIfEmpty("anonymous");
+	}
+
+	private RateLimiter redisRateLimiter() {
+		return new RedisRateLimiter(1, 1, 1);
 	}
 
 	@Bean
