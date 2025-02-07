@@ -11,6 +11,7 @@ import org.springframework.cloud.gateway.filter.ratelimit.RedisRateLimiter;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.HttpMethod;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
@@ -50,7 +51,8 @@ public class GatewayserverApplication {
 								  .build();
 	}
 
-	private KeyResolver userKeyResolver() {
+	@Bean
+	public KeyResolver userKeyResolver() {
 		return exchange -> Mono.justOrEmpty(exchange
 											.getRequest()
 											.getHeaders()
@@ -58,7 +60,9 @@ public class GatewayserverApplication {
 							   .defaultIfEmpty("anonymous");
 	}
 
-	private RateLimiter redisRateLimiter() {
+	@Bean
+	@Primary
+	public RedisRateLimiter redisRateLimiter() {
 		return new RedisRateLimiter(1, 1, 1);
 	}
 
