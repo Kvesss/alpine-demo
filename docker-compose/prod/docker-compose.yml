@@ -364,8 +364,6 @@ services:
     extends:
       file: common-config.yml
       service: microservice-eureka-config
-    ports:
-      - "8080:8080"
     environment:
       SPRING_APPLICATION_NAME: "accounts"
       OTEL_SERVICE_NAME: "accounts"
@@ -387,8 +385,6 @@ services:
   loans:
     image: "dkvesic/loans:v2"
     container_name: "loans_ms"
-    ports:
-      - "8090:8090"
     extends:
       file: common-config.yml
       service: microservice-eureka-config
@@ -416,8 +412,6 @@ services:
     extends:
       file: common-config.yml
       service: microservice-eureka-config
-    ports:
-      - "9000:9000"
     environment:
       SPRING_APPLICATION_NAME: "cards"
       OTEL_SERVICE_NAME: "cards"
