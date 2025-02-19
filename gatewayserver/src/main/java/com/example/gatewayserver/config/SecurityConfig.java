@@ -21,9 +21,9 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain filterChain(final ServerHttpSecurity serverHttpSecurity) {
         serverHttpSecurity.authorizeExchange(exchanges -> exchanges.pathMatchers(HttpMethod.GET).permitAll()
-                                                          .pathMatchers("alpine/accounts/**").authenticated()
-                                                          .pathMatchers("alpine/cards/**").authenticated()
-                                                          .pathMatchers("alpine/loans/**").authenticated())
+                                                          .pathMatchers("alpine/accounts/**").hasRole("ACCOUNTS")
+                                                          .pathMatchers("alpine/cards/**").hasRole("CARDS")
+                                                          .pathMatchers("alpine/loans/**").hasRole("LOANS"))
                  .oauth2ResourceServer(oAuth2ResourceServerSpec -> oAuth2ResourceServerSpec.jwt(jwt -> jwt
                                                                                    .jwtAuthenticationConverter(this.grantedAuthoritiesExtractor())));
         return serverHttpSecurity.csrf(ServerHttpSecurity.CsrfSpec::disable)
