@@ -1,2 +1,5 @@
 .DS_Store
 .idea
+/docker-compose/prod/.data/
+/docker-compose/default/.data/
+/docker-compose/qa/.data/
