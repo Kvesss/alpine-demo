@@ -273,7 +273,7 @@ services:
       service: microservice-db-config
 
   rabbit:
-    image: rabbitmq:3.13-management
+    image: rabbitmq:4.0-management
     hostname: rabbitmq
     ports:
       - "5672:5672"
@@ -357,6 +357,18 @@ services:
       redis:
         condition: service_healthy
 
+  message:
+    image: "dkvesic/message:v2"
+    container_name: "message_ms"
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    environment:
+      SPRING_RABBITMQ_HOST: "rabbit"
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
   accounts:
     image: "dkvesic/accounts:v2"
     container_name: "accounts_ms"
@@ -367,18 +379,21 @@ services:
       SPRING_APPLICATION_NAME: "accounts"
       OTEL_SERVICE_NAME: "accounts"
       SPRING_DATASOURCE_URL: "jdbc:mysql://accountsdb:3306/accountsdb"
+      SPRING_RABBITMQ_HOST: "rabbit"
     healthcheck:
       test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
-      interval: 15s
-      timeout: 5s
+      interval: 20s
+      timeout: 10s
       retries: 10
-      start_period: 15s
+      start_period: 20s
     depends_on:
       configserver:
         condition: service_healthy
       accountsdb:
         condition: service_healthy
       eurekaserver:
+        condition: service_healthy
+      rabbit:
         condition: service_healthy
 
   loans:
@@ -393,10 +408,10 @@ services:
       SPRING_DATASOURCE_URL: "jdbc:mysql://loansdb:3306/loansdb"
     healthcheck:
       test: "curl --fail --silent localhost:8090/actuator/health/readiness | grep UP || exit 1"
-      interval: 15s
-      timeout: 5s
+      interval: 20s
+      timeout: 10s
       retries: 10
-      start_period: 15s
+      start_period: 20s
     depends_on:
       configserver:
         condition: service_healthy
@@ -417,10 +432,10 @@ services:
       SPRING_DATASOURCE_URL: "jdbc:mysql://cardsdb:3306/cardsdb"
     healthcheck:
       test: "curl --fail --silent localhost:9000/actuator/health/readiness | grep UP || exit 1"
-      interval: 15s
-      timeout: 5s
+      interval: 20s
+      timeout: 10s
       retries: 10
-      start_period: 15s
+      start_period: 20s
     depends_on:
       configserver:
         condition: service_healthy

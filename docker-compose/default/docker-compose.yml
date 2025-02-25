@@ -272,22 +272,6 @@ services:
       file: common-config.yml
       service: microservice-db-config
 
-  rabbit:
-    image: rabbitmq:3.13-management
-    hostname: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    healthcheck:
-      test: rabbitmq-diagnostics check_port_connectivity
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
-    extends:
-      file: common-config.yml
-      service: network-deploy-service
-
   configserver:
     image: "dkvesic/configserver:v2"
     container_name: "configserver_ms"
@@ -302,9 +286,6 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
-    depends_on:
-      rabbit:
-        condition: service_healthy
     environment:
       OTEL_SERVICE_NAME: "configserver"
 
@@ -326,8 +307,6 @@ services:
       SPRING_APPLICATION_NAME: "eurekaserver"
       OTEL_SERVICE_NAME: "eurekaserver"
     depends_on:
-      rabbit:
-        condition: service_healthy
       configserver:
         condition: service_healthy
 
