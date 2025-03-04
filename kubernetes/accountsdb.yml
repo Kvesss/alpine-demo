@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: accountsdb
+spec:
+  selector:
+    matchLabels:
+      app: accountsdb
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: accountsdb
+    spec:
+      containers:
+        - image: mysql:8.1
+          name: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: dkvesic-secrets
+                  key: MYSQL_ROOT_PASSWORD
+          ports:
+            - containerPort: 3307
+              name: accountsdb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: accountsdb
+spec:
+  ports:
+    - protocol: TCP
+      port: 3307
+      targetPort: 3307
+  selector:
+    app: accountsdb
